@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.1/echarts.min.js"></script>
 <style>
   :root{
     --paper:#FAF9F5; --ink:#1A1A17; --muted:#6B6B63; --line:#E4E1D7;
@@ -219,15 +218,47 @@ async function init(){
     DATA = SEED_DATA;            // standalone / pre-first-run preview
   }
   if (!DATA || !DATA.funds){ DATA = SEED_DATA; }
-  chart = echarts.init(document.getElementById("chart"), null, { renderer:"canvas" });
-  applyMeta();
-  render();
-  wireControls();
-  window.addEventListener("resize", () => chart.resize());
+  if (!window.echarts){
+    document.getElementById("chart").innerHTML =
+      '<div style="padding:40px;color:#9a7d18;font-size:14px">Chart library failed to load. '+
+      'If you use a content blocker, allow this page or check the browser console (F12).</div>';
+    return;
+  }
+  try {
+    chart = echarts.init(document.getElementById("chart"), null, { renderer:"canvas" });
+    applyMeta();
+    render();
+    wireControls();
+    window.addEventListener("resize", () => chart.resize());
+  } catch (err){
+    document.getElementById("chart").innerHTML =
+      '<div style="padding:40px;color:#b00;font-size:13px">Error drawing chart: '+
+      (err && err.message ? err.message : err)+'</div>';
+  }
 }
 
-if (document.fonts && document.fonts.ready){ document.fonts.ready.then(init); }
-else { window.addEventListener("load", init); }
+// Load the charting library: bundled copy first, then CDNs as fallback.
+function loadEcharts(sources, done){
+  if (window.echarts) return done();
+  if (!sources.length) return done();           // init() will show a friendly message
+  const src = sources.shift();
+  const s = document.createElement("script");
+  s.src = src;
+  s.onload = () => done();
+  s.onerror = () => loadEcharts(sources, done);
+  document.head.appendChild(s);
+}
+
+function boot(){
+  loadEcharts([
+    "./vendor/echarts.min.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.1/echarts.min.js",
+    "https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"
+  ], init);
+}
+
+if (document.fonts && document.fonts.ready){ document.fonts.ready.then(boot); }
+else { window.addEventListener("load", boot); }
 </script>
 </body>
 </html>
