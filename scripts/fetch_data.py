@@ -195,8 +195,12 @@ def main():
         log(f"- {fund['name']} ...")
         try:
             slug, payload = resolve_slug(fund, by_slug, protocols)
-            series = resample_weekly(to_series(payload)) if weekly else \
-                [{"date": d, "aum": round(v)} for d, v in to_series(payload)]
+            if payload is None:
+                series = []
+                log("  no matching protocol found on DeFiLlama")
+            else:
+                series = resample_weekly(to_series(payload)) if weekly else \
+                    [{"date": d, "aum": round(v)} for d, v in to_series(payload)]
         except Exception as e:  # noqa: BLE001
             series, slug = [], None
             log(f"  FAILED: {e}")
