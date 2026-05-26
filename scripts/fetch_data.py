@@ -85,7 +85,12 @@ def resample_weekly(points):
 
 
 def resolve_slug(fund, protocols_by_slug, protocols):
-    """Return (slug, protocol_json) using config slug, else keyword match within RWA."""
+    """Return (slug, protocol_json) using config slug, else keyword match within RWA.
+
+    If the configured slug fails, try each keyword-matched candidate in order
+    (best first) until one returns usable data. Always print the candidates we
+    considered so the run log tells you the exact slug to lock into funds.json.
+    """
     slug = fund.get("defillama_slug", "")
     if slug:
         try:
@@ -93,11 +98,11 @@ def resolve_slug(fund, protocols_by_slug, protocols):
         except urllib.error.HTTPError as e:
             if e.code != 404:
                 raise
-            log(f"  slug '{slug}' returned 404 -- attempting keyword match")
+            log(f"  slug '{slug}' returned 404 -- searching for the right slug")
 
-    # Fallback: keyword match, prefer RWA category and highest TVL.
+    # Build keyword candidates, prefer RWA category then highest TVL.
     kws = [k.lower() for k in fund.get("match", [])] or [fund["name"].lower()]
-    candidates = []
+    scored = []
     for p in protocols:
         name = (p.get("name") or "").lower()
         sym = (p.get("symbol") or "").lower()
@@ -105,15 +110,33 @@ def resolve_slug(fund, protocols_by_slug, protocols):
         if any(k in hay for k in kws):
             cat = (p.get("category") or "").upper()
             score = (1 if "RWA" in cat else 0, p.get("tvl") or 0)
-            candidates.append((score, p))
-    if not candidates:
+            scored.append((score, p))
+    scored.sort(key=lambda c: c[0], reverse=True)
+
+    if scored:
+        log(f"  candidates for '{fund['name']}':")
+        for _, p in scored[:5]:
+            log(f"      slug='{p.get('slug')}'  name='{p.get('name')}'  "
+                f"cat='{p.get('category')}'  tvl=${(p.get('tvl') or 0)/1e6:,.0f}M")
+    else:
+        log(f"  NO candidates matched keywords {kws} for '{fund['name']}'")
         return None, None
-    candidates.sort(key=lambda c: c[0], reverse=True)
-    best = candidates[0][1]
-    found = best.get("slug")
-    log(f"  resolved '{fund['name']}' via keyword match -> slug '{found}'  "
-        f"(update defillama_slug in funds.json to lock this in)")
-    return found, http_json(f"{API}/protocol/{found}")
+
+    # Try candidates in order until one fetches successfully.
+    for _, p in scored:
+        cand = p.get("slug")
+        if not cand:
+            continue
+        try:
+            payload = http_json(f"{API}/protocol/{cand}")
+            log(f"  -> using slug '{cand}' for '{fund['name']}'  "
+                f"(set defillama_slug to this in funds.json to lock it in)")
+            return cand, payload
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                continue
+            raise
+    return None, None
 
 
 def load_previous():
