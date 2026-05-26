@@ -4,7 +4,7 @@
   "resample": "weekly",
   "funds": [
     { "key": "buidl", "name": "BlackRock (BUIDL)",        "ticker": "BUIDL",        "color": "#111111", "defillama_slug": "blackrock-buidl",      "match": ["blackrock", "buidl"] },
-    { "key": "usyc",  "name": "Circle (USYC)",            "ticker": "USYC",         "color": "#4DA8DA", "defillama_slug": "usyc",                 "match": ["usyc", "hashnote", "circle usyc"] },
+    { "key": "usyc",  "name": "Circle (USYC)",            "ticker": "USYC",         "color": "#4DA8DA", "defillama_slug": "circle-usyc",          "match": ["usyc", "hashnote", "circle"] },
     { "key": "spiko", "name": "Spiko",                    "ticker": "EUTBL/USTBL",  "color": "#2F5BEA", "defillama_slug": "spiko",                "match": ["spiko", "eutbl", "ustbl"] },
     { "key": "benji", "name": "Franklin Templeton (BENJI)","ticker": "BENJI",       "color": "#6B7280", "defillama_slug": "franklin-onchain-us-government-money-fund", "match": ["franklin", "benji", "fobxx"] },
     { "key": "ustb",  "name": "Superstate (USTB)",        "ticker": "USTB",         "color": "#3FA66A", "defillama_slug": "superstate-ustb",      "match": ["superstate", "ustb"] },
