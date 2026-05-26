@@ -48,7 +48,7 @@ def http_json(url, retries=4, backoff=3):
                 return json.loads(r.read().decode("utf-8"))
         except urllib.error.HTTPError as e:
             last = e
-            if e.code == 404:
+            if e.code in (400, 404):
                 raise
             log(f"  http {e.code} on {url} (attempt {attempt+1})")
         except Exception as e:  # noqa: BLE001
@@ -96,9 +96,9 @@ def resolve_slug(fund, protocols_by_slug, protocols):
         try:
             return slug, http_json(f"{API}/protocol/{slug}")
         except urllib.error.HTTPError as e:
-            if e.code != 404:
+            if e.code not in (400, 404):
                 raise
-            log(f"  slug '{slug}' returned 404 -- searching for the right slug")
+            log(f"  slug '{slug}' returned {e.code} -- searching for the right slug")
 
     # Build keyword candidates, prefer RWA category then highest TVL.
     kws = [k.lower() for k in fund.get("match", [])] or [fund["name"].lower()]
@@ -133,7 +133,7 @@ def resolve_slug(fund, protocols_by_slug, protocols):
                 f"(set defillama_slug to this in funds.json to lock it in)")
             return cand, payload
         except urllib.error.HTTPError as e:
-            if e.code == 404:
+            if e.code in (400, 404):
                 continue
             raise
     return None, None
