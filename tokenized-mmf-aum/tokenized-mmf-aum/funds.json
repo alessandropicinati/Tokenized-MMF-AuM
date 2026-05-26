@@ -1,0 +1,16 @@
+{
+  "_comment": "This is the ONLY file you edit to add or remove a fund. Add a new entry to add a fund; delete an entry to stop plotting one. 'defillama_slug' is the protocol slug from app's api (https://api.llama.fi/protocols). If the slug is wrong, the script auto-resolves it via 'match' keywords and prints the correct slug in the run log so you can fix it here. 'min_aum_usd' hides any fund below the threshold and controls new-entrant detection.",
+  "min_aum_usd": 50000000,
+  "resample": "weekly",
+  "funds": [
+    { "key": "buidl", "name": "BlackRock (BUIDL)",        "ticker": "BUIDL",        "color": "#111111", "defillama_slug": "blackrock-buidl",      "match": ["blackrock", "buidl"] },
+    { "key": "usyc",  "name": "Circle (USYC)",            "ticker": "USYC",         "color": "#4DA8DA", "defillama_slug": "usyc",                 "match": ["usyc", "hashnote", "circle usyc"] },
+    { "key": "spiko", "name": "Spiko",                    "ticker": "EUTBL/USTBL",  "color": "#2F5BEA", "defillama_slug": "spiko",                "match": ["spiko", "eutbl", "ustbl"] },
+    { "key": "benji", "name": "Franklin Templeton (BENJI)","ticker": "BENJI",       "color": "#6B7280", "defillama_slug": "franklin-onchain-us-government-money-fund", "match": ["franklin", "benji", "fobxx"] },
+    { "key": "ustb",  "name": "Superstate (USTB)",        "ticker": "USTB",         "color": "#3FA66A", "defillama_slug": "superstate-ustb",      "match": ["superstate", "ustb"] },
+    { "key": "wtgxx", "name": "WisdomTree (WTGXX)",       "ticker": "WTGXX",        "color": "#C9A24B", "defillama_slug": "wisdomtree-wtgxx",     "match": ["wisdomtree", "wtgxx"] },
+    { "key": "ousg",  "name": "Ondo (OUSG)",              "ticker": "OUSG",         "color": "#1F9E6E", "defillama_slug": "ondo-ousg",            "match": ["ondo", "ousg"] },
+    { "key": "jtrsy", "name": "Centrifuge (JTRSY)",       "ticker": "JTRSY",        "color": "#E08A3C", "defillama_slug": "anemoy-janus-henderson-treasury-fund", "match": ["centrifuge", "anemoy", "janus", "jtrsy"] },
+    { "key": "fdit",  "name": "Fidelity (FDIT)",          "ticker": "FDIT",         "color": "#76B58A", "defillama_slug": "fidelity-fdit",        "match": ["fidelity", "fdit"] }
+  ]
+}
